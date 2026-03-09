@@ -24,4 +24,5 @@ Contacto: miiguel.ih.13@gmail.com
 Miguel Ibañez Hernando.
 
 
-[CV_Miguel_Ibanez_1.pdf](https://github.com/user-attachments/files/25843027/CV_Miguel_Ibanez_1.pdf)
+<img width="796" height="778" alt="image" src="https://github.com/user-attachments/assets/ccb30390-7c14-469a-97e1-f6c5deff6c4e" />
+
