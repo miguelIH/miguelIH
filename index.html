@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miguel Ibañez — Tècnic IT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0D1B2A;
+      --navy2: #112236;
+      --cyan: #00B4D8;
+      --cyan2: #90E0EF;
+      --white: #E8F4F8;
+      --gray: #8899AA;
+      --card: #0f2236;
+      --border: #1a3a55;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Syne', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── CURSOR ── */
+    body { cursor: none; }
+    #cursor {
+      width: 12px; height: 12px;
+      background: var(--cyan);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.1s;
+      mix-blend-mode: screen;
+    }
+    #cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid var(--cyan);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transition: all 0.15s ease;
+      opacity: 0.5;
+    }
+
+    /* ── GRID BG ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px;
+      opacity: 0.25;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 4rem;
+      background: rgba(13,27,42,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+    }
+    .nav-logo span { color: var(--white); }
+    nav ul {
+      display: flex; gap: 2.5rem;
+      list-style: none;
+    }
+    nav ul a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--gray);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      transition: color 0.2s;
+    }
+    nav ul a:hover { color: var(--cyan); }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 6rem 4rem 4rem;
+      z-index: 1;
+    }
+    .hero-content { max-width: 800px; }
+    .hero-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--cyan);
+      letter-spacing: 0.2em;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.2s forwards;
+    }
+    .hero-tag::before { content: '> '; }
+    h1 {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.4s forwards;
+    }
+    h1 span { color: var(--cyan); }
+    .hero-subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      color: var(--gray);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.6s forwards;
+    }
+    .hero-desc {
+      font-size: 1.05rem;
+      color: var(--cyan2);
+      line-height: 1.7;
+      max-width: 560px;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.8s forwards;
+    }
+    .hero-btns {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.6s 1s forwards;
+    }
+    .btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      padding: 0.75rem 1.8rem;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: none;
+    }
+    .btn-primary {
+      background: var(--cyan);
+      color: var(--navy);
+      font-weight: 700;
+    }
+    .btn-primary:hover { background: var(--cyan2); transform: translateY(-2px); }
+    .btn-outline {
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+    }
+    .btn-outline:hover { background: rgba(0,180,216,0.1); transform: translateY(-2px); }
+
+    /* ── SCROLL INDICATOR ── */
+    .scroll-line {
+      position: absolute;
+      bottom: 2rem; left: 4rem;
+      display: flex; align-items: center; gap: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--gray);
+      letter-spacing: 0.15em;
+      animation: fadeUp 0.6s 1.2s forwards;
+      opacity: 0;
+    }
+    .scroll-line::after {
+      content: '';
+      display: block;
+      width: 60px; height: 1px;
+      background: var(--cyan);
+      animation: expand 1.5s 1.5s ease infinite;
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 6rem 4rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--cyan);
+      letter-spacing: 0.2em;
+      margin-bottom: 0.5rem;
+    }
+    .section-tag::before { content: '// '; }
+    h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 3rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+
+    /* ── SKILLS ── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .skill-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .skill-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: var(--cyan);
+      transform: scaleY(0);
+      transition: transform 0.25s;
+      transform-origin: bottom;
+    }
+    .skill-card:hover { border-color: var(--cyan); transform: translateY(-4px); }
+    .skill-card:hover::before { transform: scaleY(1); }
+    .skill-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.8rem;
+    }
+    .skill-card h3 {
+      font-size: 0.9rem;
+      color: var(--cyan);
+      margin-bottom: 0.8rem;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+    .skill-tags {
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
+    }
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      background: rgba(0,180,216,0.1);
+      border: 1px solid rgba(0,180,216,0.3);
+      border-radius: 2px;
+      color: var(--cyan2);
+    }
+
+    /* ── EXPERIENCIA ── */
+    .timeline { position: relative; padding-left: 2rem; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2.5rem;
+      padding-left: 1.5rem;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -2rem; top: 0.4rem;
+      width: 10px; height: 10px;
+      background: var(--navy);
+      border: 2px solid var(--cyan);
+      border-radius: 50%;
+    }
+    .timeline-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--cyan);
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.1em;
+    }
+    .timeline-item h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+    .timeline-company {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--gray);
+      margin-bottom: 0.6rem;
+    }
+    .timeline-desc {
+      font-size: 0.9rem;
+      color: var(--cyan2);
+      line-height: 1.6;
+    }
+
+    /* ── IPOP ── */
+    #ipop {
+      background: var(--navy2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      max-width: 100%;
+      padding: 6rem 4rem;
+    }
+    #ipop > .inner { max-width: 1100px; margin: 0 auto; }
+    .ipop-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .ipop-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem;
+      transition: all 0.25s;
+    }
+    .ipop-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0,180,216,0.1);
+    }
+    .ipop-card h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+    .ipop-card p {
+      font-size: 0.9rem;
+      color: var(--cyan2);
+      line-height: 1.6;
+    }
+    .ipop-link {
+      display: inline-block;
+      margin-top: 2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--cyan);
+      text-decoration: none;
+      border-bottom: 1px solid var(--cyan);
+      padding-bottom: 2px;
+      letter-spacing: 0.1em;
+      transition: opacity 0.2s;
+    }
+    .ipop-link:hover { opacity: 0.7; }
+
+    /* ── EDUCACIÓ ── */
+    .edu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .edu-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.8rem;
+      transition: all 0.25s;
+    }
+    .edu-card:hover { border-color: var(--cyan); transform: translateY(-3px); }
+    .edu-year {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--cyan);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.1em;
+    }
+    .edu-card h3 { font-size: 1rem; margin-bottom: 0.3rem; }
+    .edu-center {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+    .edu-card ul { padding-left: 1.2rem; }
+    .edu-card li {
+      font-size: 0.85rem;
+      color: var(--cyan2);
+      margin-bottom: 0.3rem;
+      line-height: 1.5;
+    }
+
+    /* ── CONTACTE ── */
+    #contact {
+      text-align: center;
+    }
+    .contact-email {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.4rem;
+      color: var(--cyan);
+      text-decoration: none;
+      border-bottom: 2px solid var(--cyan);
+      padding-bottom: 4px;
+      transition: opacity 0.2s;
+      display: inline-block;
+      margin-bottom: 2.5rem;
+    }
+    .contact-email:hover { opacity: 0.7; }
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .social-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--gray);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      padding: 0.6rem 1.2rem;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .social-link:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--gray);
+      letter-spacing: 0.1em;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes expand {
+      0%, 100% { transform: scaleX(0.5); opacity: 0.5; }
+      50%       { transform: scaleX(1); opacity: 1; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      nav ul { gap: 1.2rem; }
+      #hero, section, #ipop { padding: 5rem 1.5rem 3rem; }
+      h1 { font-size: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">miguel<span>IH</span>.dev</div>
+    <ul>
+      <li><a href="#sobre">sobre</a></li>
+      <li><a href="#skills">skills</a></li>
+      <li><a href="#experiencia">experiència</a></li>
+      <li><a href="#ipop">IPOP</a></li>
+      <li><a href="#educacio">educació</a></li>
+      <li><a href="#contact">contacte</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero" style="padding-top:0; max-width:100%;">
+    <div class="hero-content">
+      <p class="hero-tag">Tècnic en Sistemes i Xarxes · Blanes, Girona</p>
+      <h1>Miguel<br><span>Ibañez</span></h1>
+      <p class="hero-subtitle">ASIX · SMX · Linux · Docker · CCNA · Python</p>
+      <p class="hero-desc">
+        Tècnic de 20 anys format en sistemes, xarxes i seguretat informàtica.
+        Apassionat per la infraestructura IT, la virtualització i el desplegament de serveis.
+        Buscant la meva primera oportunitat professional.
+      </p>
+      <div class="hero-btns">
+        <a href="#contact" class="btn btn-primary">Contacta'm</a>
+        <a href="https://github.com/miguelIH/CV" target="_blank" class="btn btn-outline">GitHub →</a>
+        <a href="https://www.linkedin.com/in/miguel-ih/" target="_blank" class="btn btn-outline">LinkedIn →</a>
+      </div>
+    </div>
+    <div class="scroll-line">scroll</div>
+  </section>
+
+  <!-- SOBRE -->
+  <section id="sobre">
+    <div class="reveal">
+      <p class="section-tag">sobre mi</p>
+      <h2>Qui soc</h2>
+      <p style="font-size:1.05rem; color:var(--cyan2); line-height:1.8; max-width:700px;">
+        Tècnic en Sistemes Microinformàtics i Xarxes (SMX) i cursant el Grau Superior 
+        d'Administració de Sistemes Informàtics en Xarxa (ASIX) a l'Institut Sa Palomera de Blanes.
+        <br><br>
+        Tinc experiència pràctica en administració de sistemes Linux i Windows Server, 
+        configuració de xarxes TCP/IP, VLANs, DNS i DHCP, virtualització amb Docker i VMware, 
+        i programació en Python i PHP.
+        <br><br>
+        He realitzat pràctiques en entorns reals: suport tècnic a l'Institut Manyanet de Blanes 
+        i pràctiques internacionals a Amarante, Portugal.
+      </p>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="reveal">
+      <p class="section-tag">competències tècniques</p>
+      <h2>Skills</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card reveal">
+        <div class="skill-icon">🌐</div>
+        <h3>Xarxes</h3>
+        <div class="skill-tags">
+          <span class="tag">TCP/IP</span>
+          <span class="tag">VLANs</span>
+          <span class="tag">DNS</span>
+          <span class="tag">DHCP</span>
+          <span class="tag">CCNA</span>
+          <span class="tag">Routing</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <div class="skill-icon">🖥️</div>
+        <h3>Sistemes Operatius</h3>
+        <div class="skill-tags">
+          <span class="tag">Linux</span>
+          <span class="tag">Windows Server</span>
+          <span class="tag">Ubuntu</span>
+          <span class="tag">Debian</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <div class="skill-icon">📦</div>
+        <h3>Virtualització</h3>
+        <div class="skill-tags">
+          <span class="tag">Docker</span>
+          <span class="tag">VMware</span>
+          <span class="tag">VirtualBox</span>
+          <span class="tag">Proxmox</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <div class="skill-icon">💻</div>
+        <h3>Programació</h3>
+        <div class="skill-tags">
+          <span class="tag">Python</span>
+          <span class="tag">PHP</span>
+          <span class="tag">HTML/CSS</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">Apache</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <div class="skill-icon">🔒</div>
+        <h3>Seguretat</h3>
+        <div class="skill-tags">
+          <span class="tag">Firewalls</span>
+          <span class="tag">VPN</span>
+          <span class="tag">Hardening</span>
+          <span class="tag">ENS</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <div class="skill-icon">🗣️</div>
+        <h3>Idiomes</h3>
+        <div class="skill-tags">
+          <span class="tag">Català natiu</span>
+          <span class="tag">Castellà natiu</span>
+          <span class="tag">Anglès B2</span>
+          <span class="tag">Portuguès bàsic</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIÈNCIA -->
+  <section id="experiencia">
+    <div class="reveal">
+      <p class="section-tag">experiència laboral</p>
+      <h2>Trajectòria</h2>
+    </div>
+    <div class="timeline reveal">
+      <div class="timeline-item">
+        <div class="timeline-date">Mar 2025 — Mai 2025</div>
+        <h3>Tècnic IT en pràctiques</h3>
+        <div class="timeline-company">Empresa · Amarante, Portugal</div>
+        <p class="timeline-desc">Pràctiques internacionals en entorn IT. Administració de sistemes i xarxes en anglès. Adaptació a entorn internacional.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">Jun 2025 — Set 2025</div>
+        <h3>Cambrer de temporada</h3>
+        <div class="timeline-company">Hotel Spa Pimar · Blanes</div>
+        <p class="timeline-desc">Atenció al client en entorn hoteler. Treball en equip sota pressió.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">Jun 2024 — Set 2024</div>
+        <h3>Empleat</h3>
+        <div class="timeline-company">Telepizza · Blanes</div>
+        <p class="timeline-desc">Gestió del temps i atenció al client en entorn d'alta demanda.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">Set 2022 — Mar 2023</div>
+        <h3>Estudiant en pràctiques SMX</h3>
+        <div class="timeline-company">Institut Manyanet · Blanes</div>
+        <p class="timeline-desc">Suport tècnic a usuaris, manteniment d'equips i resolució d'incidències en xarxa local.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- IPOP -->
+  <div id="ipop">
+    <div class="inner">
+      <div class="reveal">
+        <p class="section-tag">projecte ASIX</p>
+        <h2>IPOP — Infraestructura i Projectes</h2>
+        <p style="color:var(--cyan2); font-size:0.95rem; margin-bottom:2rem; max-width:600px; line-height:1.7;">
+          Projecte realitzat durant el FPGS ASIX a l'Institut Sa Palomera. 
+          Documentació completa d'infraestructura IT, serveis de xarxa i administració de sistemes.
+        </p>
+      </div>
+      <div class="ipop-grid">
+        <div class="ipop-card reveal">
+          <h3>// Serveis de Xarxa</h3>
+          <p>Configuració i desplegament de serveis DNS, DHCP, HTTP, FTP i SSH en entorns Linux i Windows Server.</p>
+        </div>
+        <div class="ipop-card reveal">
+          <h3>// Virtualització</h3>
+          <p>Implementació de màquines virtuals amb VirtualBox i Docker. Gestió de contenidors i desplegament de serveis.</p>
+        </div>
+        <div class="ipop-card reveal">
+          <h3>// Seguretat</h3>
+          <p>Configuració de firewalls, VPNs i polítiques de seguretat. Hardening de sistemes i gestió d'usuaris.</p>
+        </div>
+        <div class="ipop-card reveal">
+          <h3>// Documentació Tècnica</h3>
+          <p>Elaboració de guies, procediments i documentació de projectes seguint estàndards professionals IT.</p>
+        </div>
+      </div>
+      <a href="https://github.com/miguelIH/IPOP" target="_blank" class="ipop-link reveal">
+        → Veure projecte IPOP complet a GitHub
+      </a>
+    </div>
+  </div>
+
+  <!-- EDUCACIÓ -->
+  <section id="educacio">
+    <div class="reveal">
+      <p class="section-tag">formació acadèmica</p>
+      <h2>Educació</h2>
+    </div>
+    <div class="edu-grid">
+      <div class="edu-card reveal">
+        <div class="edu-year">2023 — 2026 · En curs</div>
+        <h3>FPGS ASIX</h3>
+        <div class="edu-center">Institut Sa Palomera · Blanes</div>
+        <ul>
+          <li>Administració de sistemes Linux i Windows Server</li>
+          <li>Seguretat informàtica i ciberseguretat</li>
+          <li>Virtualització i serveis en xarxa</li>
+          <li>Desplegament d'aplicacions web</li>
+        </ul>
+      </div>
+      <div class="edu-card reveal">
+        <div class="edu-year">2022 — 2024</div>
+        <h3>FPGM SMX</h3>
+        <div class="edu-center">Institut Sa Palomera · Blanes</div>
+        <ul>
+          <li>Instal·lació i manteniment d'equips</li>
+          <li>Configuració de xarxes locals (CCNA)</li>
+          <li>Suport tècnic i resolució d'incidències</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTE -->
+  <section id="contact">
+    <div class="reveal">
+      <p class="section-tag">contacte</p>
+      <h2>Parlem</h2>
+      <a href="mailto:miiguel.ih.13@gmail.com" class="contact-email">
+        miiguel.ih.13@gmail.com
+      </a>
+      <div class="social-links">
+        <a href="https://www.linkedin.com/in/miguel-ih/" target="_blank" class="social-link">LinkedIn</a>
+        <a href="https://github.com/miguelIH" target="_blank" class="social-link">GitHub</a>
+        <a href="tel:+34690846637" class="social-link">+34 690 84 66 37</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 · Miguel Ibañez Hernando · Blanes, Girona</p>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx - 6 + 'px';
+      cursor.style.top  = my - 6 + 'px';
+    });
+    (function animRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) *.12;
+      ring.style.left = rx - 18 + 'px';
+      ring.style.top  = ry - 18 + 'px';
+      requestAnimationFrame(animRing);
+    })();
+
+    // Scroll reveal
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 80);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
